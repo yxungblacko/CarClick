@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Car Clicker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:       #0a0a0a;
+      --surface:  #111111;
+      --border:   #222222;
+      --accent:   #e8232a;
+      --accent2:  #ff6b00;
+      --text:     #f0f0f0;
+      --muted:    #666;
+      --card-bg:  #161616;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Barlow', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ─────────────────────────────────────── */
+    header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 24px 40px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    header .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.2rem;
+      letter-spacing: 4px;
+      color: var(--accent);
+      line-height: 1;
+    }
+    header .tagline {
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      border-left: 2px solid var(--border);
+      padding-left: 16px;
+    }
+
+    /* ── LAYOUT ─────────────────────────────────────── */
+    main {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* ── SIDEBAR ────────────────────────────────────── */
+    aside {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+    }
+    aside h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 0.85rem;
+      letter-spacing: 4px;
+      color: var(--muted);
+      padding: 20px 24px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    #car-list { list-style: none; }
+    #car-list li {
+      padding: 16px 24px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.15s, color 0.15s;
+      position: relative;
+    }
+    #car-list li:hover { background: #1a1a1a; }
+    #car-list li.active {
+      background: #1c0a0b;
+      color: var(--accent);
+    }
+    #car-list li.active::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--accent);
+    }
+    #car-list li .badge {
+      font-size: 0.7rem;
+      background: var(--border);
+      border-radius: 20px;
+      padding: 2px 8px;
+      color: var(--muted);
+      min-width: 32px;
+      text-align: center;
+      transition: background 0.2s, color 0.2s;
+    }
+    #car-list li.active .badge {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* ── MAIN CONTENT ───────────────────────────────── */
+    section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 40px;
+      gap: 32px;
+    }
+
+    /* car name */
+    #car-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.5rem, 5vw, 4.5rem);
+      letter-spacing: 6px;
+      text-align: center;
+      line-height: 1;
+    }
+
+    /* image wrapper */
+    .img-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 680px;
+    }
+    .img-wrapper::after {
+      content: 'CLICK PARA CONTAR';
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+      font-size: 0.65rem;
+      letter-spacing: 3px;
+      color: rgba(255,255,255,0.5);
+      background: rgba(0,0,0,0.6);
+      padding: 5px 10px;
+      border-radius: 2px;
+      pointer-events: none;
+    }
+    #car-img {
+      width: 100%;
+      height: 360px;
+      object-fit: cover;
+      display: block;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      transition: transform 0.08s ease, filter 0.2s;
+      user-select: none;
+    }
+    #car-img:hover  { filter: brightness(1.08); }
+    #car-img:active { transform: scale(0.985); }
+
+    /* counter */
+    .counter-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    #car-count {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(4rem, 10vw, 7rem);
+      line-height: 1;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      transition: transform 0.1s;
+    }
+    #car-count.bump {
+      transform: scale(1.12);
+    }
+    .counter-label {
+      font-size: 0.7rem;
+      letter-spacing: 4px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    /* placeholder image (when img not found) */
+    #car-img[src=""] { background: var(--card-bg); }
+
+    /* ── RESPONSIVE ─────────────────────────────────── */
+    @media (max-width: 640px) {
+      main { grid-template-columns: 1fr; }
+      aside { border-right: none; border-bottom: 1px solid var(--border); }
+      header { padding: 16px 20px; }
+      section { padding: 28px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">CAR CLICKER</div>
+  <div class="tagline">Selecciona · Haz click · Cuenta</div>
+</header>
+
+<main>
+  <aside>
+    <h2>Vehículos</h2>
+    <ul id="car-list"></ul>
+  </aside>
+
+  <section id="car">
+    <div id="car-name"></div>
+    <div class="img-wrapper">
+      <img id="car-img" src="" alt="Car"/>
+    </div>
+    <div class="counter-block">
+      <div id="car-count">0</div>
+      <div class="counter-label">Clicks totales</div>
+    </div>
+  </section>
+</main>
+
+<script>
+  /* ══════════════════════════════════════════
+     MODEL
+  ══════════════════════════════════════════ */
+  const model = {
+    currentCar: null,
+    cars: [
+      { clickCount: 0, name: 'Coupe Maserati',       imgSrc: 'img/black-convertible-coupe.jpg' },
+      { clickCount: 0, name: 'Camaro SS 1LE',         imgSrc: 'img/chevrolet-camaro.jpg'        },
+      { clickCount: 0, name: 'Dodge Charger 1970',    imgSrc: 'img/dodge-charger.jpg'           },
+      { clickCount: 0, name: 'Ford Mustang 1966',     imgSrc: 'img/ford-mustang.jpg'            },
+      { clickCount: 0, name: '190 SL Roadster 1962',  imgSrc: 'img/mercedes-benz.jpg'           },
+    ],
+  };
+
+  /* ══════════════════════════════════════════
+     VIEW — Lista de autos
+  ══════════════════════════════════════════ */
+  const carListView = {
+    init() {
+      this.carListElem = document.getElementById('car-list');
+      this.render();
+    },
+    render() {
+      const cars = controller.getCars();
+      this.carListElem.innerHTML = '';
+      cars.forEach(car => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span>${car.name}</span><span class="badge">${car.clickCount}</span>`;
+        if (car === controller.getCurrentCar()) li.classList.add('active');
+        li.addEventListener('click', () => {
+          controller.setCurrentCar(car);
+          carView.render();
+          carListView.render();          // refresca activo + badges
+        });
+        this.carListElem.appendChild(li);
+      });
+    },
+  };
+
+  /* ══════════════════════════════════════════
+     VIEW — Auto seleccionado
+  ══════════════════════════════════════════ */
+  const carView = {
+    init() {
+      this.carNameElem  = document.getElementById('car-name');
+      this.carImageElem = document.getElementById('car-img');
+      this.countElem    = document.getElementById('car-count');
+      this.carImageElem.addEventListener('click', () => controller.incrementCounter());
+      this.render();
+    },
+    render() {
+      const car = controller.getCurrentCar();
+      this.countElem.textContent    = car.clickCount;
+      this.carNameElem.textContent  = car.name;
+      this.carImageElem.src         = car.imgSrc;
+      this.carImageElem.alt         = car.name;
+    },
+    bump() {
+      // pequeña animación al hacer click
+      this.countElem.classList.remove('bump');
+      void this.countElem.offsetWidth;          // reflow para reiniciar
+      this.countElem.classList.add('bump');
+      this.countElem.addEventListener('transitionend', () =>
+        this.countElem.classList.remove('bump'), { once: true });
+    },
+  };
+
+  /* ══════════════════════════════════════════
+     CONTROLLER
+  ══════════════════════════════════════════ */
+  const controller = {
+    init() {
+      model.currentCar = model.cars[0];
+      carListView.init();
+      carView.init();
+    },
+    getCurrentCar()  { return model.currentCar; },
+    getCars()        { return model.cars; },
+    setCurrentCar(car) { model.currentCar = car; },
+    incrementCounter() {
+      model.currentCar.clickCount++;
+      carView.render();
+      carView.bump();
+      carListView.render();                     // actualiza badges en la lista
+    },
+  };
+
+  controller.init();
+</script>
+</body>
+</html>
